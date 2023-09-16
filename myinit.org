@@ -1,0 +1,454 @@
+#+AUTHOR:   TheCoo
+#+EMAIL:    yusufyildizr@gmail.com
+#+STARTUP:  showeverything
+
+
+
+
+
+* TABLE OF CONTENS :toc:
+- [[#user-interface][User Interface]]
+  - [[#rainbow-delimeters][Rainbow-Delimeters]]
+  - [[#icons][Icons]]
+  - [[#doom-modeline][Doom modeline]]
+  - [[#theme][Theme]]
+- [[#buffer-management][BUFFER MANAGEMENT]]
+  - [[#ace-window][Ace-window]]
+  - [[#buffer-move][BUFFER MOVE]]
+- [[#packages][Packages]]
+- [[#use-package][Use Package]]
+- [[#ivy-counsel][Ivy-counsel]]
+- [[#helpful][Helpful]]
+- [[#which-key][Which-key]]
+- [[#hydra][Hydra]]
+- [[#projectile][Projectile]]
+- [[#org-mode][ORG MODE]]
+  - [[#org-bullet][Org-Bullet]]
+  - [[#table-of-contents][Table of Contents]]
+  - [[#org-tempo][Org Tempo]]
+  - [[#org-babel-load-languages-configuration-stuff][Org-babel-load-languages configuration stuff]]
+- [[#reload-emacs][RELOAD EMACS]]
+- [[#backup-files][Backup Files]]
+- [[#deleting-files][Deleting Files]]
+- [[#magit][Magit]]
+
+* User Interface
+
+#+begin_src emacs-lisp
+  (setq inhibit-startup-message t) ; ilk emacs'e girdiğiniz zamanki ekranı göstermez
+
+  (scroll-bar-mode -1)       ; Scrollbarı kaldırır
+  (tool-bar-mode -1)         ; Toolbarı kaldırır
+  ;(set-fringe-mode 10)       ; Yazıları biraz daha sağa kaydırır isterseniz 10 sayısından daha fazla veya az yapabilirsiniz
+  (electric-pair-mode 1) ;parantez vb actiginda otomatik kapatir
+  (delete-selection-mode 1) ;bir yeri secip ustune yazmak orayi siler ve ustune yazar
+
+  (menu-bar-mode -1)        ; Menü barı kaldırır isterseniz bu kodu geçebilirsiniz menu bar bazen işe yarıyor(yukarıdaki File:Edit:Options vs. kısmı)
+
+  (setq visible-bell t) ; Bip bip sesini kaldırıp onun yerine küçük bir efekti koyar.Eğer mac kullanıyorsanız bu kod sizin canınızı sıkabilir.
+  (global-display-line-numbers-mode 1)
+
+  ;;Disable line numbers for some modes
+  ;;org mode term mode eshell modlarında line number modu kapatır
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;;emacs acilista kac framede acilacagini ayarlar
+  (setq default-frame-alist (append (list '(width . 120) '(height . 49))))
+  ;;yazilarin sag tarafa tasmasini engeller
+ ; (add-hook 'org-mode-hook 'turn-on-auto-fill)
+
+#+end_src
+
+** Rainbow-Delimeters
+[[https://github.com/Fanael/rainbow-delimiters][Github linki]]
+rainbow delimeters parantezlerin anlasilir olmasi icin parantezleri renkli yapar
+#+begin_src emacs-lisp
+    (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+#+end_src
+** Icons
+#+begin_src emacs-lisp
+      (use-package all-the-icons
+        :if (display-graphic-p))
+       ; (use-package nerd-icons
+        ;; :custom
+        ;; The Nerd Font you want to use in GUI
+        ;; "Symbols Nerd Font Mono" is the default and is recommended
+        ;; but you can use any other Nerd Font if you want
+        ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+     ;   )
+      (use-package all-the-icons-dired
+        :hook (dired-mode .(lambda () (all-the-icons-dired-mode t))))
+#+end_src
+
+
+** Doom modeline
+[[https://github.com/seagle0128/doom-modeline][Doom-Modeline Github]]
+#+begin_src emacs-lisp
+  
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1))
+
+#+end_src
+** Theme
+[[https://github.com/doomemacs/themes][doom themes github]]
+#+begin_src emacs-lisp
+  (use-package doom-themes)
+  (use-package dracula-theme)
+  (load-theme 'dracula t)
+#+end_src
+
+* BUFFER MANAGEMENT
+** Ace-window
+[[https://github.com/abo-abo/ace-window][Ace-Window github]]
+#+begin_src emacs-lisp
+  ; add this to init.el
+  (use-package ace-window
+  :ensure t
+  :init
+  (progn
+  (global-set-key [remap other-window] 'ace-window)
+  (custom-set-faces
+  '(aw-leading-char-face
+  ((t (:inherit ace-jump-face-foreground :height 2.0)))))
+  ))
+
+#+end_src
+** BUFFER MOVE
+Burada bir kac tane fonksiyon tanimladik M-x yaparak kullanabilirsiniz, buf-move-up ,buf-move-down gibi.
+https://www.emacswiki.org/emacs/buffer-move.el
+#+begin_src emacs-lisp
+  
+(require 'windmove)
+
+;;;###autoload
+(defun buf-move-up ()
+  "Swap the current buffer and the buffer above the split.
+If there is no split, ie now window above the current one, an
+error is signaled."
+;;  "Switches between the current buffer, and the buffer above the
+;;  split, if possible."
+  (interactive)
+  (let* ((other-win (windmove-find-other-window 'up))
+	 (buf-this-buf (window-buffer (selected-window))))
+    (if (null other-win)
+        (error "No window above this one")
+      ;; swap top with this one
+      (set-window-buffer (selected-window) (window-buffer other-win))
+      ;; move this one to top
+      (set-window-buffer other-win buf-this-buf)
+      (select-window other-win))))
+
+;;;###autoload
+(defun buf-move-down ()
+"Swap the current buffer and the buffer under the split.
+If there is no split, ie now window under the current one, an
+error is signaled."
+  (interactive)
+  (let* ((other-win (windmove-find-other-window 'down))
+	 (buf-this-buf (window-buffer (selected-window))))
+    (if (or (null other-win) 
+            (string-match "^ \\*Minibuf" (buffer-name (window-buffer other-win))))
+        (error "No window under this one")
+      ;; swap top with this one
+      (set-window-buffer (selected-window) (window-buffer other-win))
+      ;; move this one to top
+      (set-window-buffer other-win buf-this-buf)
+      (select-window other-win))))
+
+;;;###autoload
+(defun buf-move-left ()
+"Swap the current buffer and the buffer on the left of the split.
+If there is no split, ie now window on the left of the current
+one, an error is signaled."
+  (interactive)
+  (let* ((other-win (windmove-find-other-window 'left))
+	 (buf-this-buf (window-buffer (selected-window))))
+    (if (null other-win)
+        (error "No left split")
+      ;; swap top with this one
+      (set-window-buffer (selected-window) (window-buffer other-win))
+      ;; move this one to top
+      (set-window-buffer other-win buf-this-buf)
+      (select-window other-win))))
+
+;;;###autoload
+(defun buf-move-right ()
+"Swap the current buffer and the buffer on the right of the split.
+If there is no split, ie now window on the right of the current
+one, an error is signaled."
+  (interactive)
+  (let* ((other-win (windmove-find-other-window 'right))
+	 (buf-this-buf (window-buffer (selected-window))))
+    (if (null other-win)
+        (error "No right split")
+      ;; swap top with this one
+      (set-window-buffer (selected-window) (window-buffer other-win))
+      ;; move this one to top
+      (set-window-buffer other-win buf-this-buf)
+      (select-window other-win))))
+
+
+#+end_src
+* Packages
+  Paketleri kullanmak için
+[[https://melpa.org/][Melpa Sitesinin Linki]]
+#+begin_src emacs-lisp
+  (require 'package)
+
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("org" . "https://orgmode.org/elpa/")
+			   ("elpa" . "https://elpa.gnu.org/packages/")))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
+#+end_src
+
+
+
+* Use Package
+[[https://github.com/jwiegley/use-package][Use Package Github]]
+ 
+ use-package linux olmayan platformlarda baslatmak icin
+ #+begin_src emacs-lisp
+  (unless (package-installed-p 'use-package)
+   (package-install 'use-package))
+
+  (require 'use-package)      ; use-package bizim elpa melpa gibi paketleri kurmamiza yardimci olan paket
+  (setq use-package-always-ensure t)
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(custom-safe-themes
+     '("aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8" default))
+   '(package-selected-packages
+     '(general hydra helpful ivy-rich rainbow-delimiters ace-window tabbar doom-theme which-key doom-modeline doom-themes timu-rouge-theme dracula-theme timu-spacegrey-theme use-package)))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 2.0)))))
+#+end_src
+
+* Ivy-counsel
+[[https://github.com/abo-abo/swiper][Ivy-Counsel-Swiper Github]]
+It looks like counsel is a requirement for swiper
+#+begin_src emacs-lisp
+  (use-package counsel ;counsel adında paketi kurar counseli kullanmak için M+x ve counsel- yazarak ile ilgili komutlara bakabilirsiniz
+  :ensure t
+  )
+
+  (use-package ivy    ;ivy adında paketi kurar,ivy ve counsel aşağıdaki tuş kısayollardında bize bazı kolaylık olacak değişiklikler sundu.      
+    :ensure try
+    :config
+    (setq ivy-initial-inputs-alist nil);; ^ isareti ile aramaya baslama
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (global-set-key "\C-s" 'swiper) 
+      (global-set-key (kbd "C-c C-r") 'ivy-resume)
+      (global-set-key (kbd "C-x b") 'counsel-ibuffer)
+      (global-set-key (kbd "M-x") 'counsel-M-x)
+      (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+      (global-set-key (kbd "C-x C-b") 'counsel-switch-buffer)
+      (global-set-key (kbd "<f1> l") 'counsel-load-library)
+      (global-set-key (kbd "C-c g") 'counsel-git)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
+  
+  ;; bize M-x yaptıgımızda daha açıklayıcı yazılar sunar.
+  (use-package ivy-rich
+    :init
+    (ivy-rich-mode 1))
+#+end_src
+
+
+* Helpful
+[[https://github.com/Wilfred/helpful][Helpful Github]]
+#+begin_src emacs-lisp
+  (use-package helpful
+    :ensure t
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key))
+#+end_src
+
+* Which-key
+[[https://github.com/Wilfred/helpful][Which Key Github]]
+#+begin_src emacs-lisp
+  (use-package which-key ;which-key paketi bize C-x yapıp biraz beklediğimizde hangi tuşun hangi fonksiyona atandığını gösterir.C-x yapıp bekleyip C-h ve n tuşlarına tektar tekrar basarak ilerleyebilirsiniz.
+  :ensure t
+  :config
+  (setq which-key-idle-delay 0.3)
+  (which-key-mode))
+#+end_src
+
+* Hydra
+[[https://github.com/abo-abo/hydra][Hydra Github]]
+#+begin_src emacs-lisp
+  ;;yazıları büyütmeye ve küçültmeye yarar M-x yazarak hydra-text-scale yapabilirsiniz.
+  (use-package hydra)
+
+  (defhydra hydra-text-scale (:timeout 4)
+    "scale text"
+    ("j" text-scale-increase "in");;j büyütür
+    ("k" text-scale-decrease "out");;k küçültür
+    ("f" nil "finished" :exit t)) ;;f komuttan çıkar
+#+end_src
+
+* Projectile
+[[https://github.com/bbatsov/projectile][Projectile]]
+#+begin_src emacs-lisp
+  (use-package projectile
+    :diminish projectile-mode
+    :config (projectile-mode)
+    :custom ((projectile-completion-system 'ivy))
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
+    :init
+    ;; NOTE: Set this to the folder where you keep your Git repos!
+    (when (file-directory-p "~/Projects/Code")
+      (setq projectile-project-search-path '("~/Projects/Code")))
+    (setq projectile-switch-project-action #'projectile-dired))
+
+  (use-package counsel-projectile
+    :config (counsel-projectile-mode))
+
+#+end_src
+* ORG MODE
+
+** Org-Bullet
+[[https://github.com/sabof/org-bullets][Org-bullet Github]]
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook 'org-indent-mode)
+(use-package org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+#+end_src 
+** Table of Contents
+[[https://github.com/snosov1/toc-org][Table of Contents Github]]
+#+begin_src emacs-lisp
+  (use-package toc-org
+  :commands toc-org-enable
+  :init (add-hook 'org-mode-hook 'toc-org-enable))
+
+#+end_src
+** Org Tempo
+[[https://orgmode.org/manual/Structure-Templates.html][Org tempo Link]]
+<s yazip TAB tusuna bastigimizda otomatik kod blogu acar
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+** Org-babel-load-languages configuration stuff
+
+
+begin_src <asagidaki dillerden birisi>
+end_src
+yaparak asagidaki dilleri execute edebilirsiniz mesela ;
+#+begin_src shell
+  echo "Nart Bart Kart a"
+
+#+end_src
+
+#+RESULTS:
+: Nart Bart Kart a
+
+bu kisimda end_src nin sonuna imleci getirip C-c C-c yapiniz.
+bize Results verecektir.
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   (mapcar (lambda (lang) (cons lang t))
+           `(awk
+             C
+             R
+             calc
+             clojure
+             css
+             ditaa
+             dot
+             emacs-lisp
+             forth
+             fortran
+             gnuplot
+             haskell
+             java
+             js
+             latex
+             lilypond
+             lisp
+             makefile
+             maxima
+             matlab
+             ocaml
+             octave
+             org
+             perl
+             plantuml
+             python
+             ruby
+             sass
+             scheme
+             screen
+             sql
+             sqlite
+             ,(if (locate-library "ob-shell") 'shell 'sh)
+             )))
+#+end_src
+
+* RELOAD EMACS
+Emacsi reloadlamak icin bir fonksiyon tanimladik M-x yaparak reload-init-file yazarak deneyebilirsiniz.
+#+begin_src emacs-lisp
+        (defun reload-init-file ()
+          (interactive)
+          (load-file user-init-file)
+          (load-file user-init-file))
+#+end_src
+
+
+* Backup Files
+
+#+begin_src emacs-lisp
+  (setq backup-directory-alist `(("." . "~/.emacs.d/backups")))
+  (setq backup-by-copying t)
+  (setq delete-old-versions t
+        kept-new-versions 6
+        kept-old-versions 2
+        version-control t)
+#+end_src
+
+
+* Deleting Files
+Deleting Files
+
+There are two approaches to deleting files:
+
+Use d to flag files and then delete them with x (you can unflag
+files with u) Use m to mark files and then delete them with D
+(that’s a capital letter) (again, you can unmark files with u)
+
+To send the files to your trash and not permanently delete them, add
+the following to you .emacs.
+#+begin_src emacs-lisp
+  (setq delete-by-moving-to-trash t)
+  (setq trash-directory "~/.Trash") 
+
+#+end_src
+
+* Magit
+
+
+#+begin_src emacs-lisp
+(use-package magit)
+#+end_src

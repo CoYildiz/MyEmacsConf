@@ -8,6 +8,7 @@
 
 * TABLE OF CONTENS :toc:
 - [[#user-interface][User Interface]]
+  - [[#some-transparency-config][Some transparency config]]
   - [[#rainbow-delimeters][Rainbow-Delimeters]]
   - [[#icons][Icons]]
   - [[#doom-modeline][Doom modeline]]
@@ -21,8 +22,11 @@
 - [[#helpful][Helpful]]
 - [[#which-key][Which-key]]
 - [[#hydra][Hydra]]
-- [[#projectile][Projectile]]
+- [[#development][Development]]
+  - [[#languages][Languages]]
+  - [[#projectile][Projectile]]
 - [[#org-mode][ORG MODE]]
+  - [[#some-org-mode-basic-config][Some org-mode Basic Config]]
   - [[#org-bullet][Org-Bullet]]
   - [[#table-of-contents][Table of Contents]]
   - [[#org-tempo][Org Tempo]]
@@ -31,15 +35,17 @@
 - [[#backup-files][Backup Files]]
 - [[#deleting-files][Deleting Files]]
 - [[#magit][Magit]]
+  - [[#forge][forge]]
 
 * User Interface
+
 
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t) ; ilk emacs'e girdiğiniz zamanki ekranı göstermez
 
   (scroll-bar-mode -1)       ; Scrollbarı kaldırır
   (tool-bar-mode -1)         ; Toolbarı kaldırır
-  ;(set-fringe-mode 10)       ; Yazıları biraz daha sağa kaydırır isterseniz 10 sayısından daha fazla veya az yapabilirsiniz
+  (set-fringe-mode 0)       ; Yazıları biraz daha sağa kaydırır isterseniz 10 sayısından daha fazla veya az yapabilirsiniz
   (electric-pair-mode 1) ;parantez vb actiginda otomatik kapatir
   (delete-selection-mode 1) ;bir yeri secip ustune yazmak orayi siler ve ustune yazar
 
@@ -61,6 +67,30 @@
 
 #+end_src
 
+** Some transparency config
+#+begin_src emacs-lisp
+  (set-frame-parameter nil 'alpha-background 98)
+  (add-to-list 'default-frame-alist '(alpha-background . 98))
+
+
+    (defun toggle-transparency ()
+      (interactive)
+      (let ((alpha (frame-parameter nil 'alpha)))
+        (set-frame-parameter
+         nil 'alpha
+         (if (eql (cond ((numberp alpha) alpha)
+                        ((numberp (cdr alpha)) (cdr alpha))
+                        ;; Also handle undocumented (<active> <inactive>) form.
+                        ((numberp (cadr alpha)) (cadr alpha)))
+                  100)
+             '(85 . 50) '(100 . 100)))))
+
+   ;; Set transparency of emacs
+ (defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "nTransparency Value 0 - 100 opaque:")
+   (set-frame-parameter (selected-frame) 'alpha value))
+#+end_src
 ** Rainbow-Delimeters
 [[https://github.com/Fanael/rainbow-delimiters][Github linki]]
 rainbow delimeters parantezlerin anlasilir olmasi icin parantezleri renkli yapar
@@ -97,9 +127,19 @@ rainbow delimeters parantezlerin anlasilir olmasi icin parantezleri renkli yapar
 ** Theme
 [[https://github.com/doomemacs/themes][doom themes github]]
 #+begin_src emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/themes/emacs-cherry-blossom-theme/cherry-blossom-theme.el")
+  (add-to-list 'load-path "~/.emacs.d/themes/solarized-emacs")
+  (add-to-list 'load-path "~/.emacs.d/themes/ef-themes")
+  (add-to-list 'custom-theme-load-path
+               (file-name-as-directory "/home/co/.emacs.d/themes/replace-colorthemes"))
   (use-package doom-themes)
+  (use-package material-theme)
+  (use-package ample-theme)
   (use-package dracula-theme)
+  (use-package sublime-themes)
+  (use-package kaolin-themes)
   (load-theme 'dracula t)
+
 #+end_src
 
 * BUFFER MANAGEMENT
@@ -209,7 +249,6 @@ one, an error is signaled."
 #+end_src
 
 
-
 * Use Package
 [[https://github.com/jwiegley/use-package][Use Package Github]]
  
@@ -306,8 +345,108 @@ It looks like counsel is a requirement for swiper
     ("k" text-scale-decrease "out");;k küçültür
     ("f" nil "finished" :exit t)) ;;f komuttan çıkar
 #+end_src
+* Development
 
-* Projectile
+** Languages
+
+*** IDE Features with lsp-mode
+
+**** lsp-mode
+
+We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enable IDE-like functionality for many different programming languages via "language servers" that speak the [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]].  Before trying to set up =lsp-mode= for a particular language, check out the [[https://emacs-lsp.github.io/lsp-mode/page/languages/][documentation for your language]] so that you can learn which language servers are available and how to install them.
+
+The =lsp-keymap-prefix= setting enables you to define a prefix for where =lsp-mode='s default keybindings will be added.  I *highly recommend* using the prefix to find out what you can do with =lsp-mode= in a buffer.
+
+The =which-key= integration adds helpful descriptions of the various keys so you should be able to learn a lot just by pressing =C-c l= in a =lsp-mode= buffer and trying different things that you find there.
+
+#+begin_src emacs-lisp
+
+  (defun efs/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headerline-breadcrumb-mode))
+
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :hook (lsp-mode . efs/lsp-mode-setup)
+    :init
+    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+    :config
+    (lsp-enable-which-key-integration t))
+
+#+end_src
+
+**** lsp-ui
+
+[[https://emacs-lsp.github.io/lsp-ui/][lsp-ui]] is a set of UI enhancements built on top of =lsp-mode= which make Emacs feel even more like an IDE.  Check out the screenshots on the =lsp-ui= homepage (linked at the beginning of this paragraph) to see examples of what it can do.
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-position 'bottom))
+
+#+end_src
+
+**** lsp-treemacs
+
+[[https://github.com/emacs-lsp/lsp-treemacs][lsp-treemacs]] provides nice tree views for different aspects of your code like symbols in a file, references of a symbol, or diagnostic messages (errors and warnings) that are found in your code.
+
+Try these commands with =M-x=:
+
+- =lsp-treemacs-symbols= - Show a tree view of the symbols in the current file
+- =lsp-treemacs-references= - Show a tree view for the references of the symbol under the cursor
+- =lsp-treemacs-error-list= - Show a tree view for the diagnostic messages in the project
+
+This package is built on the [[https://github.com/Alexander-Miller/treemacs][treemacs]] package which might be of some interest to you if you like to have a file browser at the left side of your screen in your editor.
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-treemacs
+    :after lsp)
+
+#+end_src
+
+**** lsp-ivy
+
+[[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
+
+Try these commands with =M-x=:
+
+- =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
+- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-ivy)
+
+#+end_src
+
+*** TypeScript
+
+This is a basic configuration for the TypeScript language so that =.ts= files activate =typescript-mode= when opened.  We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
+
+#+begin_src emacs-lisp
+
+  (use-package typescript-mode
+    :mode "\\.ts\\'"
+    :hook (typescript-mode . lsp-deferred)
+    :config
+    (setq typescript-indent-level 2))
+
+#+end_src
+
+*Important note!*  For =lsp-mode= to work with TypeScript (and JavaScript) you will need to install a language server on your machine.  If you have Node.js installed, the easiest way to do that is by running the following command:
+
+#+begin_src shell :tangle no
+
+npm install -g typescript-language-server typescript
+
+#+end_src
+
+This will install the [[https://github.com/theia-ide/typescript-language-server][typescript-language-server]] and the TypeScript compiler package.
+
+** Projectile
 [[https://github.com/bbatsov/projectile][Projectile]]
 #+begin_src emacs-lisp
   (use-package projectile
@@ -327,6 +466,14 @@ It looks like counsel is a requirement for swiper
 
 #+end_src
 * ORG MODE
+** Some org-mode Basic Config
+
+#+begin_src emacs-lisp
+(use-package org
+  :config
+  (setq org-ellipsis " ▾"))
+#+end_src
+
 
 ** Org-Bullet
 [[https://github.com/sabof/org-bullets][Org-bullet Github]]
@@ -346,7 +493,7 @@ It looks like counsel is a requirement for swiper
 #+end_src
 ** Org Tempo
 [[https://orgmode.org/manual/Structure-Templates.html][Org tempo Link]]
-<s yazip TAB tusuna bastigimizda otomatik kod blogu acar
+*<s* yazip *TAB* tusuna bastigimizda otomatik kod blogu acar
 #+begin_src emacs-lisp
   (require 'org-tempo)
 #+end_src
@@ -356,13 +503,14 @@ It looks like counsel is a requirement for swiper
 begin_src <asagidaki dillerden birisi>
 end_src
 yaparak asagidaki dilleri execute edebilirsiniz mesela ;
+ 
 #+begin_src shell
-  echo "Nart Bart Kart a"
+  echo "Nart Bart Kart as"
 
 #+end_src
 
 #+RESULTS:
-: Nart Bart Kart a
+: Nart Bart Kart as
 
 bu kisimda end_src nin sonuna imleci getirip C-c C-c yapiniz.
 bize Results verecektir.
@@ -405,6 +553,7 @@ bize Results verecektir.
              sqlite
              ,(if (locate-library "ob-shell") 'shell 'sh)
              )))
+  (setq org-confirm-babel-evaluate nil)
 #+end_src
 
 * RELOAD EMACS
@@ -448,7 +597,16 @@ the following to you .emacs.
 
 * Magit
 
+Olmazsa olmaz
 
 #+begin_src emacs-lisp
 (use-package magit)
 #+end_src
+** forge
+#+begin_src emacs-lisp
+(use-package forge)
+#+end_src
+
+
+
+

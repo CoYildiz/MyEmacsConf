@@ -8,6 +8,7 @@
 
 * TABLE OF CONTENS :toc:
 - [[#user-interface][User Interface]]
+  - [[#dashboard][Dashboard]]
   - [[#some-transparency-config][Some transparency config]]
   - [[#rainbow-delimeters][Rainbow-Delimeters]]
   - [[#icons][Icons]]
@@ -23,6 +24,8 @@
 - [[#which-key][Which-key]]
 - [[#hydra][Hydra]]
 - [[#development][Development]]
+  - [[#commeting-yorum-satirina-alma][Commeting (Yorum satirina alma)]]
+  - [[#company-mode][Company-Mode]]
   - [[#languages][Languages]]
   - [[#projectile][Projectile]]
 - [[#org-mode][ORG MODE]]
@@ -36,41 +39,85 @@
 - [[#deleting-files][Deleting Files]]
 - [[#magit][Magit]]
   - [[#forge][forge]]
+- [[#yasnippet][Yasnippet]]
+- [[#flycheck][Flycheck]]
+- [[#auctex][auctex]]
+- [[#undo-tree][Undo-tree]]
+- [[#tree-sitter-deneme][Tree-sitter deneme]]
+- [[#atomic-chrome][atomic-chrome]]
+- [[#some-recommented-conf][some recommented conf]]
 
 * User Interface
 
 
 #+begin_src emacs-lisp
-  (setq inhibit-startup-message t) ; ilk emacs'e girdiğiniz zamanki ekranı göstermez
+     (setq inhibit-startup-message t) ; ilk emacs'e girdiğiniz zamanki ekranı göstermez
 
-  (scroll-bar-mode -1)       ; Scrollbarı kaldırır
-  (tool-bar-mode -1)         ; Toolbarı kaldırır
-  (set-fringe-mode 0)       ; Yazıları biraz daha sağa kaydırır isterseniz 10 sayısından daha fazla veya az yapabilirsiniz
-  (electric-pair-mode 1) ;parantez vb actiginda otomatik kapatir
-  (delete-selection-mode 1) ;bir yeri secip ustune yazmak orayi siler ve ustune yazar
+     (scroll-bar-mode -1)       ; Scrollbarı kaldırır
+     (tool-bar-mode -1)         ; Toolbarı kaldırır
+     (set-fringe-mode 0)       ; Yazıları biraz daha sağa kaydırır isterseniz 10 sayısından daha fazla veya az yapabilirsiniz
+     (electric-pair-mode 1) ;parantez vb actiginda otomatik kapatir
+     (delete-selection-mode 1) ;bir yeri secip ustune yazmak orayi siler ve ustune yazar
 
-  (menu-bar-mode -1)        ; Menü barı kaldırır isterseniz bu kodu geçebilirsiniz menu bar bazen işe yarıyor(yukarıdaki File:Edit:Options vs. kısmı)
+     (menu-bar-mode -1)        ; Menü barı kaldırır isterseniz bu kodu geçebilirsiniz menu bar bazen işe yarıyor(yukarıdaki File:Edit:Options vs. kısmı)
 
-  (setq visible-bell t) ; Bip bip sesini kaldırıp onun yerine küçük bir efekti koyar.Eğer mac kullanıyorsanız bu kod sizin canınızı sıkabilir.
-  (global-display-line-numbers-mode 1)
+     (setq visible-bell t) ; Bip bip sesini kaldırıp onun yerine küçük bir efekti koyar.Eğer mac kullanıyorsanız bu kod sizin canınızı sıkabilir.
+     (global-display-line-numbers-mode 1)
 
-  ;;Disable line numbers for some modes
-  ;;org mode term mode eshell modlarında line number modu kapatır
-  (dolist (mode '(org-mode-hook
-                  term-mode-hook
-                  eshell-mode-hook))
-    (add-hook mode (lambda () (display-line-numbers-mode 0))))
-  ;;emacs acilista kac framede acilacagini ayarlar
-  (setq default-frame-alist (append (list '(width . 120) '(height . 49))))
-  ;;yazilarin sag tarafa tasmasini engeller
- ; (add-hook 'org-mode-hook 'turn-on-auto-fill)
+     ;;Disable line numbers for some modes
+     ;;org mode term mode eshell modlarında line number modu kapatır
+     (dolist (mode '(org-mode-hook
+                     term-mode-hook
+                     treemacs-mode-hook
+                     eshell-mode-hook))
+       (add-hook mode (lambda () (display-line-numbers-mode 0))))
+     ;;emacs acilista kac framede acilacagini ayarlar
+     (setq default-frame-alist (append (list '(width . 110) '(height . 49))))
+     ;;yazilarin sag tarafa tasmasini engeller
+  ;  (add-hook 'org-mode-hook 'turn-on-auto-fill)
+
+#+end_src
+** Dashboard
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook))
+
+#+end_src
+*** Dashboard configuration
+#+begin_src emacs-lisp
+      ;; Set the title
+      (setq dashboard-banner-logo-title "Get Back to Work")
+      ;; Set the banner
+      (setq dashboard-startup-banner "~/Downloads/grifitth.gif")
+      ;; Value can be
+      ;; - nil to display no banner
+      ;; - 'official which displays the official emacs logo
+      ;; - 'logo which displays an alternative emacs logo
+      ;; - 1, 2 or 3 which displays one of the text banners
+      ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
+      ;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
+
+      ;; Content is not centered by default. To center, set
+      (setq dashboard-center-content t)
+
+      ;; To disable shortcut "jump" indicators for each section, set
+  (setq dashboard-show-shortcuts nil)
+
+
+
+  (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
+  (setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
 
 #+end_src
 
+
+
 ** Some transparency config
 #+begin_src emacs-lisp
-  (set-frame-parameter nil 'alpha-background 98)
-  (add-to-list 'default-frame-alist '(alpha-background . 98))
+  (set-frame-parameter nil 'alpha-background 90) ;; bu kısımda saydamlığı ayarlayabilirsiniz.
+  (add-to-list 'default-frame-alist '(alpha-background . 90))
 
 
     (defun toggle-transparency ()
@@ -86,7 +133,7 @@
              '(85 . 50) '(100 . 100)))))
 
    ;; Set transparency of emacs
- (defun transparency (value)
+ (defun transparency (value) ;; Bu fonkisyon ise geçici olarak saydamlığı ayarlamanızı sağlar.
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
    (interactive "nTransparency Value 0 - 100 opaque:")
    (set-frame-parameter (selected-frame) 'alpha value))
@@ -103,14 +150,15 @@ rainbow delimeters parantezlerin anlasilir olmasi icin parantezleri renkli yapar
 #+begin_src emacs-lisp
       (use-package all-the-icons
         :if (display-graphic-p))
-       ; (use-package nerd-icons
-        ;; :custom
+       (use-package nerd-icons
+         :custom
         ;; The Nerd Font you want to use in GUI
         ;; "Symbols Nerd Font Mono" is the default and is recommended
         ;; but you can use any other Nerd Font if you want
-        ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
-     ;   )
-      (use-package all-the-icons-dired
+         (nerd-icons-font-family "Symbols Nerd Font Mono")
+     )
+
+(use-package all-the-icons-dired
         :hook (dired-mode .(lambda () (all-the-icons-dired-mode t))))
 #+end_src
 
@@ -126,19 +174,28 @@ rainbow delimeters parantezlerin anlasilir olmasi icin parantezleri renkli yapar
 #+end_src
 ** Theme
 [[https://github.com/doomemacs/themes][doom themes github]]
+[[https://github.com/inlinestyle/emacs-cherry-blossom-theme][Cherry blossom github]]
+[[https://github.com/bbatsov/solarized-emacs][Solarized theme github]]
+[[https://github.com/owainlewis/emacs-color-themes][Sublime themes github]]
+[[https://github.com/protesilaos/ef-themes][Ef themes github]]
+[[https://github.com/ogdenwebb/emacs-kaolin-themes][kaolin themes github]]
+[[https://github.com/cpaulik/emacs-material-theme][Material theme github]]
+[[https://github.com/cpaulik/emacs-material-theme][Ample theme github]]
+
 #+begin_src emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/themes/emacs-cherry-blossom-theme/cherry-blossom-theme.el")
-  (add-to-list 'load-path "~/.emacs.d/themes/solarized-emacs")
-  (add-to-list 'load-path "~/.emacs.d/themes/ef-themes")
-  (add-to-list 'custom-theme-load-path
-               (file-name-as-directory "/home/co/.emacs.d/themes/replace-colorthemes"))
+  (use-package cherry-blossom-theme)
+  (use-package solarized-theme)
+  (use-package ef-themes)
   (use-package doom-themes)
   (use-package material-theme)
   (use-package ample-theme)
   (use-package dracula-theme)
   (use-package sublime-themes)
   (use-package kaolin-themes)
-  (load-theme 'dracula t)
+                                  ;;       (load-theme 'doom-fairy-floss t)
+  (load-theme 'doom-monokai-pro t)
+                                       ;; (load-theme 'doom-dracula t)
+  ;; (load-theme 'solarized-wombat-dark t)
 
 #+end_src
 
@@ -280,11 +337,15 @@ one, an error is signaled."
 [[https://github.com/abo-abo/swiper][Ivy-Counsel-Swiper Github]]
 It looks like counsel is a requirement for swiper
 #+begin_src emacs-lisp
-  (use-package counsel ;counsel adında paketi kurar counseli kullanmak için M+x ve counsel- yazarak ile ilgili komutlara bakabilirsiniz
+  (use-package counsel ;counsel adında paketi kurar counseli kullanmak
+                       ;için M+x ve counsel- yazarak ile ilgili
+                       ;komutlara bakabilirsiniz
   :ensure t
   )
 
-  (use-package ivy    ;ivy adında paketi kurar,ivy ve counsel aşağıdaki tuş kısayollardında bize bazı kolaylık olacak değişiklikler sundu.      
+  (use-package ivy    ;ivy adında paketi kurar,ivy ve counsel aşağıdaki
+                      ;tuş kısayollardında bize bazı kolaylık olacak
+                      ;değişiklikler sundu.
     :ensure try
     :config
     (setq ivy-initial-inputs-alist nil);; ^ isareti ile aramaya baslama
@@ -300,7 +361,7 @@ It looks like counsel is a requirement for swiper
       (global-set-key (kbd "<f1> l") 'counsel-load-library)
       (global-set-key (kbd "C-c g") 'counsel-git)
       (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
-  
+
   ;; bize M-x yaptıgımızda daha açıklayıcı yazılar sunar.
   (use-package ivy-rich
     :init
@@ -326,7 +387,11 @@ It looks like counsel is a requirement for swiper
 * Which-key
 [[https://github.com/Wilfred/helpful][Which Key Github]]
 #+begin_src emacs-lisp
-  (use-package which-key ;which-key paketi bize C-x yapıp biraz beklediğimizde hangi tuşun hangi fonksiyona atandığını gösterir.C-x yapıp bekleyip C-h ve n tuşlarına tektar tekrar basarak ilerleyebilirsiniz.
+  (use-package which-key ;which-key paketi bize C-x yapıp biraz
+                         ;beklediğimizde hangi tuşun hangi fonksiyona
+                         ;atandığını gösterir.C-x yapıp bekleyip C-h ve
+                         ;n tuşlarına tektar tekrar basarak
+                         ;ilerleyebilirsiniz.
   :ensure t
   :config
   (setq which-key-idle-delay 0.3)
@@ -346,11 +411,35 @@ It looks like counsel is a requirement for swiper
     ("f" nil "finished" :exit t)) ;;f komuttan çıkar
 #+end_src
 * Development
+** Commeting (Yorum satirina alma)
+Emacs’ built in commenting functionality comment-dwim (usually bound to M-;) doesn’t always comment
+things in the way you might expect so we use evil-nerd-commenter to provide a more familiar behavior
+. I’ve bound it to M-/ since other editors sometimes use this binding but you could also replace Emacs’ M-;
+binding with this command.
+#+begin_src emacs-lisp
 
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
+#+end_src
+** Company-Mode
+#+begin_src emacs-lisp
+  (use-package company
+    :after lsp-mode
+    :hook (lsp-mode . company-mode)
+    :bind (:map company-active-map
+           ("<tab>" . company-complete-selection))
+          (:map lsp-mode-map
+           ("<tab>" . company-indent-or-complete-common))
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0))
+  (add-hook 'prog-mode 'company-mode)
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+#+end_src
 ** Languages
-
 *** IDE Features with lsp-mode
-
 **** lsp-mode
 
 We use the excellent [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] to enable IDE-like functionality for many different programming languages via "language servers" that speak the [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]].  Before trying to set up =lsp-mode= for a particular language, check out the [[https://emacs-lsp.github.io/lsp-mode/page/languages/][documentation for your language]] so that you can learn which language servers are available and how to install them.
@@ -360,18 +449,35 @@ The =lsp-keymap-prefix= setting enables you to define a prefix for where =lsp-mo
 The =which-key= integration adds helpful descriptions of the various keys so you should be able to learn a lot just by pressing =C-c l= in a =lsp-mode= buffer and trying different things that you find there.
 
 #+begin_src emacs-lisp
+  ;;system creaters
+      (defun co/lsp-mode-setup ()
+        (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+        (lsp-headerline-breadcrumb-mode))
 
-  (defun efs/lsp-mode-setup ()
-    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-    (lsp-headerline-breadcrumb-mode))
+      (use-package lsp-mode
+        :commands (lsp lsp-deferred)
+        :hook (lsp-mode . co/lsp-mode-setup)
+        :init
+        (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+        :config
+        (lsp-enable-which-key-integration t))
 
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :hook (lsp-mode . efs/lsp-mode-setup)
-    :init
-    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
-    :config
-    (lsp-enable-which-key-integration t))
+    ;;mike zamansky
+
+  ;; (use-package lsp-mode
+
+  ;;   :init
+  ;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  ;;   (setq lsp-keymap-prefix "C-c l")
+  ;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+  ;;          (python-mode . lsp)
+  ;;          (c++-mode . lsp)
+  ;;          (java-mode . lsp)
+  ;;          (clojure-mode . lsp)
+
+  ;;          (lsp-mode . lsp-enable-which-key-integration))
+  ;;   :commands lsp)
+
 
 #+end_src
 
@@ -421,31 +527,6 @@ Try these commands with =M-x=:
   (use-package lsp-ivy)
 
 #+end_src
-
-*** TypeScript
-
-This is a basic configuration for the TypeScript language so that =.ts= files activate =typescript-mode= when opened.  We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
-
-#+begin_src emacs-lisp
-
-  (use-package typescript-mode
-    :mode "\\.ts\\'"
-    :hook (typescript-mode . lsp-deferred)
-    :config
-    (setq typescript-indent-level 2))
-
-#+end_src
-
-*Important note!*  For =lsp-mode= to work with TypeScript (and JavaScript) you will need to install a language server on your machine.  If you have Node.js installed, the easiest way to do that is by running the following command:
-
-#+begin_src shell :tangle no
-
-npm install -g typescript-language-server typescript
-
-#+end_src
-
-This will install the [[https://github.com/theia-ide/typescript-language-server][typescript-language-server]] and the TypeScript compiler package.
-
 ** Projectile
 [[https://github.com/bbatsov/projectile][Projectile]]
 #+begin_src emacs-lisp
@@ -589,6 +670,15 @@ files with u) Use m to mark files and then delete them with D
 
 To send the files to your trash and not permanently delete them, add
 the following to you .emacs.
+
+
+Dosyaları silmek için 2 yol vardır:
+
+Dosyaları işaretlemek için d’yi kullanın ve ardından x ile silin (işaretlediğiniz dosyanın işaretini u ile kaldırabilirsiniz.)
+
+Dosyaları işaretlemek için m’yi kullanın ve ardından D ile silin (yine dosyaların işaretini u ile kaldırabilirsiniz)
+
+Trash kısmına varsa çöp klasörünüz onun yolunu yazın yoksa oluşturun ve oluşturduğunuz yolu yazın.
 #+begin_src emacs-lisp
   (setq delete-by-moving-to-trash t)
   (setq trash-directory "~/.Trash") 
@@ -610,3 +700,233 @@ Olmazsa olmaz
 
 
 
+* Yasnippet
+(Need to update /some problems working with lsp)
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :diminish yas-minor-mode
+    :hook (after-init . yas-global-mode)
+    (lsp-mode .yas-global-mode))
+
+  ;; Collection of yasnippet snippets
+  (use-package yasnippet-snippets)
+
+  ;; Yasnippet Completion At Point Function
+  (use-package yasnippet-capf
+    :init (add-to-list 'completion-at-point-functions #'yasnippet-capf))
+
+
+#+end_src
+
+
+* Flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+#+end_src
+
+
+* auctex
+it's not working now(at least for my pc)
+#+begin_src emacs-lisp
+  (provide 'init-latex)
+
+(use-package LaTeX
+  :defer t
+  :disabled t
+  :mode "\\.(la)?tex\\'"
+  :config
+  (progn
+    (bind-key "C-c i" 'insert-latex LaTeX-mode-map)
+    (bind-key "C-c C-c" 'TeX-comment-or-uncomment-region LaTeX-mode-map)
+    (bind-key "C-c C-k" 'TeX-command-master LaTeX-mode-map)
+
+    (use-package auctex
+      :ensure t
+      :config
+      (use-package auctex-latexmk
+        :ensure t
+        :config
+        (auctex-latexmk-setup)))
+
+    (use-package auto-complete
+      :config
+      (progn
+        (ac-flyspell-workaround)
+        (setq ac-auto-show-menu 0.01
+              ac-auto-start 1
+              ac-delay 0.01)))
+
+    (use-package ispell
+      :ensure t
+      :config
+      (progn
+        (make-local-variable 'ispell-parser)
+        (setq ispell-parser 'tex)))
+
+    (use-package ac-ispell
+      :ensure t
+      :requires auto-complete ispell
+      )
+
+    (use-package writegood-mode
+      :ensure t
+      :config
+      (writegood-mode))
+
+    (use-package smartparens-latex
+      :disabled t ;; Does not seem to be available
+      :ensure t
+      :config
+      (smartparens-mode +1))
+
+    (use-package ac-math
+      :ensure t
+      :config
+      (LaTeX-math-mode))
+
+    (visual-line-mode t)
+    (flyspell-mode t)
+    (auto-fill-mode t)
+    (abbrev-mode +1)
+
+    (font-lock-add-keywords nil '(("\\<\\(FIXME\\|TODO\\|BUG\\)" 1 font-lock-warning-face t)))
+
+    (setq-default TeX-master nil)
+
+    (setq LaTeX-command "latex"
+          TeX-parse-self t
+          TeX-auto-save t
+          TeX-PDF-mode t
+          TeX-source-correlate-method 'synctex
+          TeX-source-correlate-mode t
+          TeX-source-correlate-start-server t
+          TeX-clean-confirm nil
+          TeX-view-predicate-list '((output-pdf (string-match "pdf" (TeX-output-extension))))
+          TeX-view-program-list
+          '(("Default"
+             (lambda () (interactive) (progn (TeX-clean) (find-file-other-window "%o")))))
+          ;;           (lambda () (interactive) (view-doc-in-emacs "%o" (ido-get-work-directory)))))
+          ;; ("Okular" ("okular --unique %o#src:%n%b"))
+          TeX-view-program-selection '((output-pdf "Default")))
+
+
+    ;; (eval-after-load 'LaTeX-mode
+    ;;   '(progn
+    ;; (install-package 'writegood-mode)
+    ;; (install-package 'auctex)
+    ;; (install-package 'auctex-latexmk)
+    ;; (install-package 'ispell)
+    ;; (install-package 'smartparens-latex)
+    ;; (install-package 'ac-ispell)
+    ;; (install-package 'ac-math)
+
+    ;; (require 'latex)
+    ;; (require 'auctex-latexmk)
+    ;; (require 'ispell)
+    ;; (require 'auto-complete)
+    ;; (require 'smartparens-latex)
+
+    ;; ))
+    ))
+
+
+;;; http://www.hyegar.com/blog/2014/12/16/orgmode-latex-and-animations/
+;;; Define skeletons when creating new .tex-files
+(define-skeleton my-tex-default
+  "Latex default skeleton"
+  (concat
+   "\\documentclass[11pt,a4paper]{report}\n"
+   "\\usepackage[OT1]{fontenc}\n"
+   "\\usepackage[utf8x]{inputenc}\n"
+   "\\usepackage[english]{babel}\n\n"
+   "\\begin{document}\n\n\n"
+   "\\end{document}"))
+
+(define-auto-insert "\\.tex\\'" 'my-tex-default)
+
+
+;;; From https://github.com/fxfactorial/emacsd/blob/master/init.el
+(add-hook 'doc-view-mode-hook (lambda ()
+                                ;; Improves resolution at cost of computation
+                                (setq doc-view-resolution 300)
+                                ;; Basically poll the file for changes.
+                                (auto-revert-mode)))
+ #+end_src
+
+
+* Undo-tree
+#+begin_src emacs-lisp
+(use-package undo-tree)
+(global-undo-tree-mode t)
+#+end_src
+
+* Tree-sitter deneme
+i have no idea 
+#+begin_src emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+
+  ;;; ^ Standard straight.el bootstrapping.
+  ;;; --------------------------------------------------------------------------
+  ;;; v Tree-sitter setup.
+
+  (straight-use-package 'use-package)
+  (require 'use-package)
+
+  ;; Core APIs.
+  (straight-register-package
+   '(tsc :host github
+         :repo "ubolonton/emacs-tree-sitter"
+         :files ("core/*.el")))
+
+  ;; Base framework, syntax highlighting.
+  (straight-use-package
+   '(tree-sitter :host github
+                 :repo "ubolonton/emacs-tree-sitter"
+                 :files ("lisp/*.el")))
+
+  ;; Language bundle.
+  (straight-use-package
+   '(tree-sitter-langs :host github
+                       :repo "ubolonton/emacs-tree-sitter"
+                       :files ("langs/*.el" "langs/queries")))
+
+  (use-package tree-sitter
+    :demand t
+    :config (global-tree-sitter-mode)
+    :hook (tree-sitter-after-on . tree-sitter-hl-mode))
+
+  (use-package tree-sitter-langs
+    :after tree-sitter)
+#+end_src
+
+* atomic-chrome
+Ghost-text uygulamasiyla beraber calismasi icin yujledim
+#+begin_src emacs-lisp
+(use-package atomic-chrome)
+#+end_src
+
+
+
+* some recommented conf
+
+org-ai readme and gpt api
+#+begin_src emacs-lisp
+  (use-package org-ai)
+  (use-package general)
+  (use-package tabbar)
+  (use-package timu-rouge-theme)
+  (use-package timu-spacegrey-theme)
+#+end_src
